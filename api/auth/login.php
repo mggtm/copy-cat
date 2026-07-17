@@ -33,7 +33,7 @@ $auth = supabase_auth('/token?grant_type=password', [
 ]);
 
 if ($auth['status'] !== 200) {
-    $msg = $auth['body']['error_description'] ?? $auth['body']['msg'] ?? 'Invalid credentials';
+    $msg = $auth['body']['error_description'] ?? $auth['body']['msg'] ?? $auth['body']['error'] ?? 'Invalid credentials';
     json_error($msg, 401);
 }
 
@@ -50,6 +50,31 @@ $vendor_res = supabase_rest('GET', '/vendors', [], [
 $vendor = ($vendor_res['status'] === 200 && !empty($vendor_res['body']))
     ? $vendor_res['body'][0]
     : null;
+
+// --- Auto-create profile & settings if missing ---
+if ($vendor === null && isset($user['id'])) {
+    $email_parts = explode('@', $user['email'] ?? 'vendor');
+    $fallback_name = ucwords(str_replace(['.', '_', '-'], ' ', $email_parts[0]));
+    
+    $create_vendor = supabase_rest('POST', '/vendors', [
+        'user_id' => $user['id'],
+        'name'    => $fallback_name,
+        'school'  => 'School Gate',
+    ], [], $access_token);
+
+    if ($create_vendor['status'] === 201) {
+        $vendor = is_array($create_vendor['body']) ? $create_vendor['body'][0] ?? $create_vendor['body'] : $create_vendor['body'];
+        $vendor_id = $vendor['id'] ?? '';
+        
+        if ($vendor_id !== '') {
+            supabase_rest('POST', '/settings', [
+                'vendor_id'               => $vendor_id,
+                'exchange_rate_usd_to_zar' => 18.5,
+                'display_currency'         => 'USD',
+            ], [], $access_token);
+        }
+    }
+}
 
 json_response([
     'access_token'  => $access_token,

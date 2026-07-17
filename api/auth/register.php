@@ -39,7 +39,7 @@ $signup = supabase_auth('/signup', [
 ]);
 
 if ($signup['status'] !== 200 && $signup['status'] !== 201) {
-    $msg = $signup['body']['error_description'] ?? $signup['body']['msg'] ?? 'Registration failed';
+    $msg = $signup['body']['error_description'] ?? $signup['body']['msg'] ?? $signup['body']['error'] ?? 'Registration failed';
     json_error($msg, 400);
 }
 

@@ -107,7 +107,7 @@ function supabase_rest(
         CURLOPT_CUSTOMREQUEST  => strtoupper($method),
         CURLOPT_HTTPHEADER     => $headers,
         CURLOPT_TIMEOUT        => 15,
-        CURLOPT_SSL_VERIFYPEER => true,
+        CURLOPT_SSL_VERIFYPEER => !(php_sapi_name() === 'cli-server' || php_sapi_name() === 'cli'),
     ]);
 
     if (!empty($data) && in_array(strtoupper($method), ['POST', 'PUT', 'PATCH'], true)) {
@@ -149,7 +149,7 @@ function supabase_auth(string $endpoint, array $data = []): array {
         CURLOPT_POSTFIELDS     => json_encode($data),
         CURLOPT_HTTPHEADER     => $headers,
         CURLOPT_TIMEOUT        => 15,
-        CURLOPT_SSL_VERIFYPEER => true,
+        CURLOPT_SSL_VERIFYPEER => !(php_sapi_name() === 'cli-server' || php_sapi_name() === 'cli'),
     ]);
 
     $response  = curl_exec($ch);
