@@ -1,0 +1,82 @@
+<?php
+/**
+ * VendorFlow — Entry Point
+ * This serves the Single Page Application (SPA) shell.
+ * API requests are routed to /api/* via Vercel or local server configuration.
+ */
+
+// If running locally using PHP's built-in web server, route API requests manually
+if (php_sapi_name() === 'cli-server') {
+    $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+    if (str_starts_with($uri, '/api/')) {
+        $file = __DIR__ . $uri;
+        if (is_file($file)) {
+            require $file;
+        } elseif (is_file($file . '/index.php')) {
+            require $file . '/index.php';
+        } else {
+            http_response_code(404);
+            echo json_encode(['error' => 'API Endpoint Not Found']);
+        }
+        exit;
+    }
+    if ($uri !== '/' && file_exists(__DIR__ . $uri)) {
+        return false; // serve static file
+    }
+}
+?>
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>VendorFlow | Street Vendor Management</title>
+    <meta name="description" content="Digital operations and tracking for street vendors.">
+    
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Design System -->
+    <link rel="stylesheet" href="/public/css/style.css">
+    
+    <!-- Chart.js for Analytics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+    
+    <!-- App Logic -->
+    <script src="/public/js/currency.js" defer></script>
+    <script src="/public/js/charts.js" defer></script>
+    <script src="/public/js/app.js" defer></script>
+
+    <!-- Theme Initialization Script to prevent FOUC -->
+    <script>
+        (function() {
+            try {
+                var theme = localStorage.getItem('vf_theme');
+                if (theme) {
+                    document.documentElement.setAttribute('data-theme', theme);
+                }
+            } catch (e) {}
+        })();
+    </script>
+</head>
+<body>
+    <!-- Toast Notifications Container -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Modal Overlay & Container -->
+    <div id="modal-overlay" class="modal-overlay">
+        <div id="modal-inner" style="width: 100%; display: flex; justify-content: center;"></div>
+    </div>
+
+    <!-- Main SPA Container -->
+    <div id="app">
+        <!-- The shell and views are rendered here by app.js -->
+        <div class="page-loader">
+            <div class="loader"></div>
+            <span>Starting VendorFlow...</span>
+        </div>
+    </div>
+</body>
+</html>
