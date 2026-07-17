@@ -1,15 +1,14 @@
 <?php
 /**
- * VendorFlow — Entry Point
+ * VendorFlow — Entry Point (Moved to api/index.php for Vercel Serverless compatibility)
  * This serves the Single Page Application (SPA) shell.
- * API requests are routed to /api/* via Vercel or local server configuration.
  */
 
 // If running locally using PHP's built-in web server, route API requests manually
 if (php_sapi_name() === 'cli-server') {
     $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
     if (str_starts_with($uri, '/api/')) {
-        $file = __DIR__ . $uri;
+        $file = dirname(__DIR__) . $uri;
         if (is_file($file)) {
             require $file;
         } elseif (is_file($file . '/index.php')) {
@@ -20,7 +19,7 @@ if (php_sapi_name() === 'cli-server') {
         }
         exit;
     }
-    if ($uri !== '/' && file_exists(__DIR__ . $uri)) {
+    if ($uri !== '/' && file_exists(dirname(__DIR__) . $uri)) {
         return false; // serve static file
     }
 }
