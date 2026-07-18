@@ -16,27 +16,37 @@ require_method('POST');
 
 $body     = request_body();
 $email    = sanitize_string($body['email']    ?? '');
+$phone    = sanitize_string($body['phone']    ?? '');
 $password = sanitize_string($body['password'] ?? '');
 $name     = sanitize_string($body['name']     ?? '');
-$phone    = sanitize_string($body['phone']    ?? '');
 $school   = sanitize_string($body['school']   ?? 'School Gate');
 
 // --- Validate inputs ---
-if ($email === '' || $password === '' || $name === '') {
-    json_error('Email, password, and vendor name are required');
+if ($name === '') {
+    json_error('Vendor name is required');
 }
-if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    json_error('Invalid email address');
+if ($email === '' && $phone === '') {
+    json_error('Email or phone number is required');
+}
+if ($password === '') {
+    json_error('Password is required');
 }
 if (strlen($password) < 8) {
     json_error('Password must be at least 8 characters');
 }
+if ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    json_error('Invalid email address');
+}
 
 // --- Sign up with Supabase Auth ---
-$signup = supabase_auth('/signup', [
-    'email'    => $email,
-    'password' => $password,
-]);
+$payload = ['password' => $password];
+if ($phone !== '') {
+    $payload['phone'] = $phone;
+} else {
+    $payload['email'] = $email;
+}
+
+$signup = supabase_auth('/signup', $payload);
 
 if ($signup['status'] !== 200 && $signup['status'] !== 201) {
     $msg = $signup['body']['error_description'] ?? $signup['body']['msg'] ?? $signup['body']['error'] ?? 'Registration failed';

@@ -16,21 +16,29 @@ require_method('POST');
 
 $body     = request_body();
 $email    = sanitize_string($body['email']    ?? '');
+$phone    = sanitize_string($body['phone']    ?? '');
 $password = sanitize_string($body['password'] ?? '');
 
-if ($email === '' || $password === '') {
-    json_error('Email and password are required');
+if ($email === '' && $phone === '') {
+    json_error('Email or phone number is required');
+}
+if ($password === '') {
+    json_error('Password is required');
 }
 
-if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+if ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
     json_error('Invalid email address');
 }
 
 // --- Authenticate with Supabase Auth ---
-$auth = supabase_auth('/token?grant_type=password', [
-    'email'    => $email,
-    'password' => $password,
-]);
+$payload = ['password' => $password];
+if ($phone !== '') {
+    $payload['phone'] = $phone;
+} else {
+    $payload['email'] = $email;
+}
+
+$auth = supabase_auth('/token?grant_type=password', $payload);
 
 if ($auth['status'] !== 200) {
     $msg = $auth['body']['error_description'] ?? $auth['body']['msg'] ?? $auth['body']['error'] ?? 'Invalid credentials';
