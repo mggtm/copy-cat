@@ -11,7 +11,10 @@
 const App = {
   token: localStorage.getItem('vf_token') || '',
   refreshToken: localStorage.getItem('vf_refresh') || '',
-  vendor: JSON.parse(localStorage.getItem('vf_vendor') || 'null'),
+  vendor: (() => {
+    try { return JSON.parse(localStorage.getItem('vf_vendor') || 'null'); }
+    catch(e) { return null; }
+  })(),
   settings: { exchange_rate_usd_to_zar: 18.5, display_currency: 'USD' },
   sidebarOpen: false,
   currentRoute: 'dashboard',
