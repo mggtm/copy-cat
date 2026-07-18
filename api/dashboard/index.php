@@ -19,11 +19,8 @@ $today = date('Y-m-d');
 $yesterday = date('Y-m-d', strtotime('-1 day'));
 
 // Get vendor_id
-$vendor_res = supabase_rest('GET', '/vendors', [], ['select'=>'id','limit'=>'1'], $token);
-if ($vendor_res['status'] !== 200 || empty($vendor_res['body'])) {
-    json_error('Vendor not found', 404);
-}
-$vendor_id = $vendor_res['body'][0]['id'];
+$vendor = require_vendor_profile($token);
+$vendor_id = $vendor['id'];
 
 // Settings (for exchange rate)
 $settings_res = supabase_rest('GET', '/settings', [], [

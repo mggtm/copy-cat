@@ -164,3 +164,63 @@ function supabase_auth(string $endpoint, array $data = []): array {
     $decoded = json_decode($response, true);
     return ['status' => $http_code, 'body' => $decoded ?? []];
 }
+
+/**
+ * Decode JWT token payload without external libraries.
+ */
+function decode_jwt_payload(string $token): ?array {
+    $parts = explode('.', $token);
+    if (count($parts) !== 3) return null;
+    $payload = str_replace(['-', '_'], ['+', '/'], $parts[1]);
+    $decoded = base64_decode($payload);
+    if (!$decoded) return null;
+    return json_decode($decoded, true);
+}
+
+/**
+ * Fetch a vendor profile by token, auto-creating it on the fly if it is missing.
+ */
+function require_vendor_profile(string $token): array {
+    $res = supabase_rest('GET', '/vendors', [], ['select' => '*', 'limit' => '1'], $token);
+    if ($res['status'] === 200 && !empty($res['body'])) {
+        return $res['body'][0];
+    }
+    
+    // Vendor not found -> Decode JWT to get user_id & email for auto-creation
+    $payload = decode_jwt_payload($token);
+    if (!$payload || !isset($payload['sub'])) {
+        http_response_code(401);
+        die(json_encode(['error' => 'Invalid authentication token payload']));
+    }
+    
+    $user_id = $payload['sub'];
+    // Fallback to phone number or default if email is not present (e.g. phone signups)
+    $email = $payload['email'] ?? $payload['phone'] ?? 'vendor';
+    $email_username = explode('@', $email)[0];
+    $name = ucwords(str_replace(['.', '_', '-'], ' ', $email_username));
+    
+    $create_res = supabase_rest('POST', '/vendors', [
+        'user_id' => $user_id,
+        'name'    => $name,
+        'school'  => 'School Gate',
+    ], [], $token);
+    
+    if ($create_res['status'] !== 201) {
+        http_response_code(500);
+        die(json_encode(['error' => 'Failed to auto-create vendor profile']));
+    }
+    
+    $vendor = is_array($create_res['body']) ? $create_res['body'][0] ?? $create_res['body'] : $create_res['body'];
+    $vendor_id = $vendor['id'] ?? '';
+    
+    if ($vendor_id !== '') {
+        // Create default settings
+        supabase_rest('POST', '/settings', [
+            'vendor_id'               => $vendor_id,
+            'exchange_rate_usd_to_zar' => 18.5,
+            'display_currency'         => 'USD',
+        ], [], $token);
+    }
+    
+    return $vendor;
+}

@@ -16,11 +16,7 @@ $token  = require_auth();
 $method = strtoupper($_SERVER['REQUEST_METHOD']);
 
 // Get vendor_id (needed for both GET and PUT)
-$vendor_res = supabase_rest('GET', '/vendors', [], ['select'=>'*','limit'=>'1'], $token);
-if ($vendor_res['status'] !== 200 || empty($vendor_res['body'])) {
-    json_error('Vendor not found', 404);
-}
-$vendor    = $vendor_res['body'][0];
+$vendor    = require_vendor_profile($token);
 $vendor_id = $vendor['id'];
 
 // ------------------------------------------------------------------ GET

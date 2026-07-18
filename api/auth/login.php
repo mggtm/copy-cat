@@ -49,40 +49,8 @@ $access_token  = $auth['body']['access_token']  ?? '';
 $refresh_token = $auth['body']['refresh_token'] ?? '';
 $user          = $auth['body']['user']           ?? [];
 
-// --- Fetch vendor profile ---
-$vendor_res = supabase_rest('GET', '/vendors', [], [
-    'select' => '*',
-    'limit'  => '1',
-], $access_token);
-
-$vendor = ($vendor_res['status'] === 200 && !empty($vendor_res['body']))
-    ? $vendor_res['body'][0]
-    : null;
-
-// --- Auto-create profile & settings if missing ---
-if ($vendor === null && isset($user['id'])) {
-    $email_parts = explode('@', $user['email'] ?? 'vendor');
-    $fallback_name = ucwords(str_replace(['.', '_', '-'], ' ', $email_parts[0]));
-    
-    $create_vendor = supabase_rest('POST', '/vendors', [
-        'user_id' => $user['id'],
-        'name'    => $fallback_name,
-        'school'  => 'School Gate',
-    ], [], $access_token);
-
-    if ($create_vendor['status'] === 201) {
-        $vendor = is_array($create_vendor['body']) ? $create_vendor['body'][0] ?? $create_vendor['body'] : $create_vendor['body'];
-        $vendor_id = $vendor['id'] ?? '';
-        
-        if ($vendor_id !== '') {
-            supabase_rest('POST', '/settings', [
-                'vendor_id'               => $vendor_id,
-                'exchange_rate_usd_to_zar' => 18.5,
-                'display_currency'         => 'USD',
-            ], [], $access_token);
-        }
-    }
-}
+// --- Fetch vendor profile (auto-create if missing) ---
+$vendor = require_vendor_profile($access_token);
 
 json_response([
     'access_token'  => $access_token,
