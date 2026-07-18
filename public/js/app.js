@@ -1796,8 +1796,17 @@ async function saveSettings(e) {
 async function init() {
   initTheme();
 
-  // Handle Google OAuth Redirect
   const hashVal = window.location.hash;
+
+  // Handle Google OAuth Redirect Error
+  if (hashVal.includes('error=')) {
+    const params = new URLSearchParams(hashVal.replace('#', '?'));
+    const error_desc = params.get('error_description') || params.get('error') || 'Google authentication failed';
+    window.history.replaceState(null, null, ' '); // Clean URL hash
+    toast('error', 'Auth Error', decodeURIComponent(error_desc).replace(/\+/g, ' '));
+  }
+
+  // Handle Google OAuth Redirect Success
   if (hashVal.includes('access_token=') && hashVal.includes('refresh_token=')) {
     const params = new URLSearchParams(hashVal.replace('#', '?'));
     const access_token = params.get('access_token');
