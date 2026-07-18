@@ -389,8 +389,8 @@ function renderLoginForm() {
     <p class="auth-subtitle">Sign in to your vendor account</p>
     <form id="login-form" onsubmit="handleLogin(event)">
       <div class="form-group">
-        <label class="form-label">Email address</label>
-        <input id="login-email" type="email" class="form-input" placeholder="you@example.com" required autocomplete="email">
+        <label class="form-label">Email or Phone Number</label>
+        <input id="login-id" type="text" class="form-input" placeholder="you@example.com or +263 77..." required>
       </div>
       <div class="form-group">
         <label class="form-label">Password</label>
@@ -398,8 +398,18 @@ function renderLoginForm() {
       </div>
       <div id="login-error" class="form-error hidden"></div>
       <button type="submit" class="btn btn-primary w-full btn-lg" id="login-btn">Sign in</button>
+      
+      <div class="oauth-divider" style="margin: 16px 0; text-align: center; font-size: 12px; color: var(--text-muted); position: relative; display: flex; align-items: center; justify-content: center;">
+        <span style="background: var(--glass-bg); padding: 0 10px; z-index: 1;">or continue with</span>
+        <div style="position: absolute; width: 100%; height: 1px; background: var(--border); top: 50%; left: 0; z-index: 0;"></div>
+      </div>
+      
+      <button type="button" class="btn btn-secondary w-full" onclick="loginWithGoogle()" style="display:flex;align-items:center;justify-content:center;gap:10px">
+        <svg style="width:18px;height:18px" viewBox="0 0 24 24"><path fill="currentColor" d="M21.35,11.1H12v2.7h5.38c-0.24,1.28 -0.96,2.37 -2.04,3.1v2.57h3.3c1.93,-1.78 3.04,-4.4 3.04,-7.48 0,-0.61 -0.05,-1.2 -0.15,-1.79z" /><path fill="currentColor" d="M12,21c2.43,0 4.47,-0.8 5.96,-2.18l-3.3,-2.57c-0.91,0.61 -2.07,0.98 -3.3,0.98 -2.35,0 -4.34,-1.59 -5.05,-3.72H3.59v2.66C5.07,18.15 8.27,21 12,21z" /><path fill="currentColor" d="M6.95,13.51a5.35,5.35 0 0 1 0,-3.02V7.83H3.59a9,9 0 0 0 0,8.34L6.95,13.51z" /><path fill="currentColor" d="M12,7.22c1.32,0 2.5,0.45 3.44,1.35l2.58,-2.58C16.46,4.5 14.42,3.6 12,3.6c-3.73,0 -6.93,2.85 -8.41,6.57l3.36,2.62c0.71,-2.13 2.7,-3.72 5.05,-3.72z" /></svg>
+        Google
+      </button>
     </form>
-    <div class="auth-switch">
+    <div class="auth-switch" style="margin-top: 16px">
       Don't have an account? <a onclick="showAuth('register')">Register here</a>
     </div>`;
 }
@@ -413,19 +423,13 @@ function renderRegisterForm() {
         <label class="form-label">Your name / Business name</label>
         <input id="reg-name" type="text" class="form-input" placeholder="e.g. Mama Chipo's Kitchen" required>
       </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">Phone number</label>
-          <input id="reg-phone" type="tel" class="form-input" placeholder="+263 77 ...">
-        </div>
-        <div class="form-group">
-          <label class="form-label">School / Location</label>
-          <input id="reg-school" type="text" class="form-input" placeholder="e.g. Harare High">
-        </div>
+      <div class="form-group">
+        <label class="form-label">School / Location</label>
+        <input id="reg-school" type="text" class="form-input" placeholder="e.g. Harare High" required>
       </div>
       <div class="form-group">
-        <label class="form-label">Email address</label>
-        <input id="reg-email" type="email" class="form-input" placeholder="you@example.com" required>
+        <label class="form-label">Login Email or Phone Number</label>
+        <input id="reg-id" type="text" class="form-input" placeholder="you@example.com or +263 77..." required>
       </div>
       <div class="form-group">
         <label class="form-label">Password <span class="form-hint">(min 8 chars)</span></label>
@@ -433,10 +437,26 @@ function renderRegisterForm() {
       </div>
       <div id="reg-error" class="form-error hidden"></div>
       <button type="submit" class="btn btn-primary w-full btn-lg" id="reg-btn">Create account</button>
+      
+      <div class="oauth-divider" style="margin: 16px 0; text-align: center; font-size: 12px; color: var(--text-muted); position: relative; display: flex; align-items: center; justify-content: center;">
+        <span style="background: var(--glass-bg); padding: 0 10px; z-index: 1;">or continue with</span>
+        <div style="position: absolute; width: 100%; height: 1px; background: var(--border); top: 50%; left: 0; z-index: 0;"></div>
+      </div>
+      
+      <button type="button" class="btn btn-secondary w-full" onclick="loginWithGoogle()" style="display:flex;align-items:center;justify-content:center;gap:10px">
+        <svg style="width:18px;height:18px" viewBox="0 0 24 24"><path fill="currentColor" d="M21.35,11.1H12v2.7h5.38c-0.24,1.28 -0.96,2.37 -2.04,3.1v2.57h3.3c1.93,-1.78 3.04,-4.4 3.04,-7.48 0,-0.61 -0.05,-1.2 -0.15,-1.79z" /><path fill="currentColor" d="M12,21c2.43,0 4.47,-0.8 5.96,-2.18l-3.3,-2.57c-0.91,0.61 -2.07,0.98 -3.3,0.98 -2.35,0 -4.34,-1.59 -5.05,-3.72H3.59v2.66C5.07,18.15 8.27,21 12,21z" /><path fill="currentColor" d="M6.95,13.51a5.35,5.35 0 0 1 0,-3.02V7.83H3.59a9,9 0 0 0 0,8.34L6.95,13.51z" /><path fill="currentColor" d="M12,7.22c1.32,0 2.5,0.45 3.44,1.35l2.58,-2.58C16.46,4.5 14.42,3.6 12,3.6c-3.73,0 -6.93,2.85 -8.41,6.57l3.36,2.62c0.71,-2.13 2.7,-3.72 5.05,-3.72z" /></svg>
+        Google
+      </button>
     </form>
-    <div class="auth-switch">
+    <div class="auth-switch" style="margin-top: 16px">
       Already have an account? <a onclick="showAuth('login')">Sign in</a>
     </div>`;
+}
+
+function loginWithGoogle() {
+  const supabaseUrl = 'https://xhrwxayvkqbgmxafwesv.supabase.co';
+  const redirectUrl = window.location.origin + '/';
+  window.location.href = `${supabaseUrl}/auth/v1/authorize?provider=google&redirect_to=${encodeURIComponent(redirectUrl)}`;
 }
 
 async function handleLogin(e) {
@@ -447,14 +467,24 @@ async function handleLogin(e) {
   btn.innerHTML = `<div class="loader"></div> Signing in...`;
   errEl.classList.add('hidden');
 
+  const idVal = document.getElementById('login-id').value.trim();
+  const payload = { password: document.getElementById('login-password').value };
+  
+  if (idVal.includes('@')) {
+    payload.email = idVal;
+  } else {
+    let phone = idVal.replace(/[\s\-\(\)]/g, '');
+    if (!phone.startsWith('+')) {
+      phone = phone.startsWith('0') ? '+263' + phone.substring(1) : '+263' + phone;
+    }
+    payload.phone = phone;
+  }
+
   try {
     const res = await fetch('/api/auth/login.php', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        email:    document.getElementById('login-email').value,
-        password: document.getElementById('login-password').value,
-      }),
+      body: JSON.stringify(payload),
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Login failed');
@@ -478,17 +508,28 @@ async function handleRegister(e) {
   btn.innerHTML = `<div class="loader"></div> Creating account...`;
   errEl.classList.add('hidden');
 
+  const idVal = document.getElementById('reg-id').value.trim();
+  const payload = {
+    password: document.getElementById('reg-password').value,
+    name:     document.getElementById('reg-name').value,
+    school:   document.getElementById('reg-school').value,
+  };
+  
+  if (idVal.includes('@')) {
+    payload.email = idVal;
+  } else {
+    let phone = idVal.replace(/[\s\-\(\)]/g, '');
+    if (!phone.startsWith('+')) {
+      phone = phone.startsWith('0') ? '+263' + phone.substring(1) : '+263' + phone;
+    }
+    payload.phone = phone;
+  }
+
   try {
     const res = await fetch('/api/auth/register.php', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        email:    document.getElementById('reg-email').value,
-        password: document.getElementById('reg-password').value,
-        name:     document.getElementById('reg-name').value,
-        phone:    document.getElementById('reg-phone').value,
-        school:   document.getElementById('reg-school').value,
-      }),
+      body: JSON.stringify(payload),
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Registration failed');
@@ -1751,6 +1792,29 @@ async function saveSettings(e) {
 ================================================================ */
 async function init() {
   initTheme();
+
+  // Handle Google OAuth Redirect
+  const hashVal = window.location.hash;
+  if (hashVal.includes('access_token=') && hashVal.includes('refresh_token=')) {
+    const params = new URLSearchParams(hashVal.replace('#', '?'));
+    const access_token = params.get('access_token');
+    const refresh_token = params.get('refresh_token');
+    
+    if (access_token && refresh_token) {
+      window.history.replaceState(null, null, ' '); // Clean URL hash
+      
+      App.token = access_token;
+      App.refreshToken = refresh_token;
+      localStorage.setItem('vf_token', access_token);
+      localStorage.setItem('vf_refresh', refresh_token);
+      
+      await loadSettings();
+      renderShell();
+      navigate('dashboard');
+      toast('success', 'Logged in with Google!');
+      return;
+    }
+  }
 
   if (!App.token) {
     showAuth('login');
