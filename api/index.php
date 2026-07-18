@@ -32,6 +32,13 @@ if (php_sapi_name() === 'cli-server') {
     <title>VendorFlow | Street Vendor Management</title>
     <meta name="description" content="Digital operations and tracking for street vendors.">
     
+    <!-- PWA Manifest & App Config -->
+    <link rel="manifest" href="/public/manifest.json">
+    <meta name="theme-color" content="#7c3aed">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="https://xhrwxayvkqbgmxafwesv.supabase.co/storage/v1/object/public/assets/icon-192.png">
+
     <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -48,7 +55,7 @@ if (php_sapi_name() === 'cli-server') {
     <script src="/public/js/charts.js" defer></script>
     <script src="/public/js/app.js" defer></script>
 
-    <!-- Theme Initialization Script to prevent FOUC -->
+    <!-- Theme & SW Initialization Script to prevent FOUC -->
     <script>
         (function() {
             try {
@@ -57,6 +64,13 @@ if (php_sapi_name() === 'cli-server') {
                     document.documentElement.setAttribute('data-theme', theme);
                 }
             } catch (e) {}
+
+            // Register Service Worker for PWA
+            if ('serviceWorker' in navigator) {
+                window.addEventListener('load', function() {
+                    navigator.serviceWorker.register('/public/sw.js').catch(function(err) {});
+                });
+            }
         })();
     </script>
 </head>
