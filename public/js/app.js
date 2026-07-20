@@ -1796,24 +1796,23 @@ async function saveSettings(e) {
 async function init() {
   initTheme();
 
-  const hashVal = window.location.hash;
+  const fullUrlParams = new URLSearchParams(window.location.search || window.location.hash.replace('#', '?'));
+  const rawUrl = window.location.search + window.location.hash;
 
   // Handle Google OAuth Redirect Error
-  if (hashVal.includes('error=')) {
-    const params = new URLSearchParams(hashVal.replace('#', '?'));
-    const error_desc = params.get('error_description') || params.get('error') || 'Google authentication failed';
-    window.history.replaceState(null, null, ' '); // Clean URL hash
+  if (rawUrl.includes('error=')) {
+    const error_desc = fullUrlParams.get('error_description') || fullUrlParams.get('error') || 'Google authentication failed';
+    window.history.replaceState(null, null, window.location.pathname); // Clean URL
     toast('error', 'Auth Error', decodeURIComponent(error_desc).replace(/\+/g, ' '));
   }
 
   // Handle Google OAuth Redirect Success
-  if (hashVal.includes('access_token=') && hashVal.includes('refresh_token=')) {
-    const params = new URLSearchParams(hashVal.replace('#', '?'));
-    const access_token = params.get('access_token');
-    const refresh_token = params.get('refresh_token');
+  if (rawUrl.includes('access_token=') && rawUrl.includes('refresh_token=')) {
+    const access_token = fullUrlParams.get('access_token');
+    const refresh_token = fullUrlParams.get('refresh_token');
     
     if (access_token && refresh_token) {
-      window.history.replaceState(null, null, ' '); // Clean URL hash
+      window.history.replaceState(null, null, window.location.pathname); // Clean URL
       
       App.token = access_token;
       App.refreshToken = refresh_token;
